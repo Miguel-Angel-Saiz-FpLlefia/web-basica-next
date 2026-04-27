@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nextjs-blog-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432" # Postgres escolta al teu ordinador a localhost:5432
+    environment:
+      POSTGRES_USER: blog # Nombre del usuario
+      POSTGRES_PASSWORD: blogsecret # La contraseña
+      POSTGRES_DB: blogdb # Nombre de la base de datos
+    volumes:
+      - pgdata:/var/lib/postgresql/data # les dades persisteixen encara que aturis el contenidor (no es perden en reiniciar).
+
+volumes:
+  pgdata:

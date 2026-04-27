@@ -1,13 +1,15 @@
-import { notFound } from "next/navigation"; // Crear la pagina 404
-import { posts } from "../data";
+import { notFound } from "next/navigation";
+import { prisma } from "../../../../../lib/prisma.js";
 
-export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
-async function BlogPostPage({ params }) {
-  const { slug } = await params; // Se pasan de manera asyncrona a partir de la versión 16
-  const post = posts.find((p) => p.slug === slug);
+export default async function BlogPostPage({ params }) {
+  const { slug } = await params;
+
+  const post = await prisma.post.findUnique({
+    where: { slug },
+  });
+
   if (!post) notFound();
 
   return (
@@ -18,5 +20,3 @@ async function BlogPostPage({ params }) {
     </article>
   );
 }
-
-export default BlogPostPage;
