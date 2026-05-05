@@ -1,6 +1,7 @@
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import bcrypt from "bcryptjs";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -10,23 +11,19 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  await prisma.post.createMany({
-    data: [
-      {
-        slug: "el-meu-primer-post",
-        title: "El meu primer post",
-        excerpt: "Introducció al blog.",
-        content: "Aquest és el contingut complet del primer article.",
-      },
-      {
-        slug: "nextjs-app-router",
-        title: "Next.js App Router",
-        excerpt: "Rutes i layouts.",
-        content: "Aquí expliques com funciona l'App Router.",
-      },
-    ],
-    skipDuplicates: true,
+  const passwordHash = bcrypt.hashSync("demo1234", 10);
+
+  await prisma.user.upsert({
+    where: { email: "admin@demo.local" },
+    update: {},
+    create: {
+      email: "admin@demo.local",
+      passwordHash,
+      role: "ADMIN",
+    },
   });
+
+  // Opcional: mantenir createMany de posts de la S14
 }
 
 main()
